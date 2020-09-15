@@ -7,7 +7,7 @@ public class SmoothFollow : MonoBehaviour
     public float height = 5.0f;
     public float heightDamping = 2.0f;
     public float rotationDamping = 3.0f;
-    public Transform target = ShipMovement.Instance.transform;
+    public Transform target;
     private void LateUpdate()
     {
         // Early out if we don't have a target
@@ -41,10 +41,8 @@ public class SmoothFollow : MonoBehaviour
 
         // Always look at the target
         transform.LookAt(target);
-        //transform.rotation = Quaternion.Lerp(transform.rotation, target.rotation, rotationDamping * Time.deltaTime);
     }
 
-    [SerializeField] private Text speedBoosted;
     [SerializeField] private float minimalDistance;
     private float maximumDistance;
     [SerializeField] private float minimalHeight;
@@ -59,7 +57,7 @@ public class SmoothFollow : MonoBehaviour
     }
     void Update()
     {
-        if (speedBoosted.text == "Acceleration is active" && distance > minimalDistance)
+        if (ShipMovement.Instance.IsBoosted && distance > minimalDistance)
         {
             distance -= speed;
             height -= (speed * 0.5f);

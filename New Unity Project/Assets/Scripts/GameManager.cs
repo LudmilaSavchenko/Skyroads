@@ -5,28 +5,34 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private Text score;
-    [SerializeField] private int points;
+    //Score
+    private int currentScore;
+    [SerializeField] private int timePoint = 1;  //очки что даются за 1 секунду времени
+    [SerializeField] private int timePointBoosted = 2; // очки во время ускорения
     public int Score
     {
-        get { return points; }
-        set { points = value; }
+        get { return currentScore; }
+        set { currentScore = value; }
     }
 
-    [SerializeField] private Text speed;
-
-    [SerializeField] private Text timer;
-    [SerializeField] private int seconds;
+    //Time
     private float miliSecond; //поле для подсчета милисекунд
-    [SerializeField] private int timePoint = 1;  //очки что даются за 1 секунду времени
-    [SerializeField] private int timePointBoosted = 2;
+    private int seconds; //секунду с начала уровня
+    private int minutes; //минуты с начала уровня
+    private const int secondsInMinute = 60; //секунд в минуте
+
+    public string CurrentTime
+    {
+        get { return minutes + ":" + seconds; }
+        set { }
+    }
     public int Seconds
     {
         get { return seconds; }
         set { }
     }
 
-    [SerializeField] private Text asteroidCount;
+    //Asteroids - обновляются из скрипта Asteroid
     private int asteroids;
     public int AsteroidsCount
     {
@@ -34,8 +40,27 @@ public class GameManager : MonoBehaviour
         set { asteroids = value; }
     }
 
-    [SerializeField] private Text isRadyToBoost;
-    [SerializeField] private Text newBest;
+    //Boost
+    private string boostMessage;
+    public string BoostMessage
+    {
+        get { return BoostMessage; }
+        set { }
+    }
+    //BestScore
+    private int bestScore;
+    private bool newBestScore = false;
+
+    public int BestScore
+    {
+        get { return bestScore; }
+        set { }
+    }
+    public bool NewBestScore
+    {
+        get { return newBestScore; }
+        set { }
+    }
 
     public static GameManager Instance { get; set; }
 
@@ -43,14 +68,10 @@ public class GameManager : MonoBehaviour
     {
         Instance = this;
     }
+
     void Start()
     {
-        //Выводим поля
-        timer.text = "Time: " + (seconds / 60) + ":" + (seconds % 60);
-        score.text = " 0";
-        speed.text = "Speed: " + ShipMovement.Instance.Speed;
-        asteroidCount.text = "0";
-        isRadyToBoost.text = "";
+        bestScore = PlayerPrefs.GetInt("Score");
     }
 
     void FixedUpdate()
@@ -60,54 +81,72 @@ public class GameManager : MonoBehaviour
         //Обновляем время и баллы за движение
         if (miliSecond >= 1.0f)
         {
-            seconds++;
-            if (ShipMovement.Instance.IsBoosted)
-            {
-                points += timePointBoosted;
-            }
-            else
-            {
-                points += timePoint;
-            }
-            score.text = points.ToString();
-            miliSecond--;
-
+            UpdateTime();
+            UpdateScore();
         }
 
-        //Обновляем поля
-        speed.text = "Speed: " + ShipMovement.Instance.Speed;
-        timer.text = "Time: " + (seconds / 60) + ":" + (seconds % 60);
-        asteroidCount.text = "Asteroids: " + asteroids;
+        UpdateBoostMessage();
+        CheckBestScore();
+    }
 
+    private void UpdateBoostMessage()
+    {
         if (ShipMovement.Instance.IsReadyToBoost)
         {
-            isRadyToBoost.text = "Press spacebar to speed up";
+            boostMessage = "Press spacebar to speed up";
         }
         else if (ShipMovement.Instance.IsBoosted)
         {
-            isRadyToBoost.text = "Acceleration is active";
+            boostMessage = "Acceleration is active";
         }
         else
         {
-            isRadyToBoost.text = "Acceleration not available";
+            boostMessage = "Acceleration not available";
         }
-        CheckBestScore();
-
     }
-
-    //Проигрыш
-    public void PlayerLoose()
+    private void UpdateTime()
     {
-        Time.timeScale = 0;
-        CheckBestScore();
+        seconds++;
+        if (seconds == secondsInMinute)
+        {
+            minutes++;
+            seconds -= secondsInMinute;
+        }
+        miliSecond--;
     }
-
+    private void UpdateScore()
+    {
+        if (ShipMovement.Instance.IsBoosted)
+            currentScore += timePointBoosted;
+        else
+            currentScore += timePoint;
+    }
     private void CheckBestScore()
     {
-        if (PlayerPrefs.GetInt("Score") < points)
+        if (bestScore < currentScore) 
         {
-            PlayerPrefs.SetInt("Score", points);
-            newBest.text = "New best: " + points;
+            PlayerPrefs.SetInt("Score", currentScore);
+            newBestScore = true;
         }
     }
-}
+    public void RestartGameManager()
+    {
+        //Score
+        currentScore = 0;
+
+        //Time
+        miliSecond = 0;
+        seconds = 0;
+        minutes = 0;
+
+        //Asteroids
+        asteroids = 0;
+
+        //Boost
+        boostMessage = string.Empty;
+
+        //BestScore
+        bestScore = PlayerPrefs.GetInt("Score");
+        newBestScore = false;
+    } 
+}  

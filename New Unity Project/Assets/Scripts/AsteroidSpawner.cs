@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class AsteroidSpawner : MonoBehaviour
 {
+    //Distance from ship where we go to spawn asteroids
     [SerializeField] private float distanceFromShip = 100f;
     [SerializeField] private Transform startPoint;
     [SerializeField] private Transform endPoint;
@@ -16,14 +17,6 @@ public class AsteroidSpawner : MonoBehaviour
     [SerializeField] private float spawnRate = 4.0f;
     [SerializeField] private float variance = 1.0f;
 
-    //значение false запрещает создание астероидов
-    public bool spawnAsteroids = true;
-    public static AsteroidSpawner Instance { get; set; }
-
-    void Awake()
-    {
-        Instance = this;
-    }
     void Start()
     {
         //Запустить сопрограмму создания астероидов
@@ -56,11 +49,6 @@ public class AsteroidSpawner : MonoBehaviour
     void CreateNewAsteroid()
     {
 
-        if (spawnAsteroids == false)
-        {
-            return;
-        }
-
         Vector3 asteroidPosition;
 
         //И добавить смещение объекта, порождающего астероиды
@@ -72,7 +60,7 @@ public class AsteroidSpawner : MonoBehaviour
         GameObject newAsteroid = (GameObject)Instantiate(asteroidPrefab, asteroidPosition, Quaternion.identity);
     }
 
-    public void DestroyAllAsteroids()
+    private void DestroyAllAsteroids() 
     {
         GameObject[] asteroids;
 
@@ -82,5 +70,11 @@ public class AsteroidSpawner : MonoBehaviour
         {
             Destroy(asteroids[i]);
         }
+    }
+
+    public void RestartAsteroidSpawner()
+    {
+        asteroidCounter = 0;
+        DestroyAllAsteroids();
     }
 }

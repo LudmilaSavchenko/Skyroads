@@ -4,43 +4,42 @@ using UnityEngine;
 
 public class GenerateFloor : MonoBehaviour
 {
-    public GameObject FloorPrefabs;
-    [SerializeField] private int floorLenght;
-    public List<SpawnFloor> ins = new List<SpawnFloor>();
-    private float LastDistance;
+    [SerializeField] private GameObject FloorPrefabs;
+    [SerializeField] private int floorLenght; //длина префаба. мб нужно повесить что-то на него, чтотбы узнавать конец прифаба.
     [SerializeField] private int startFloorQuantity;
-    public bool isDead;
+    public List<SpawnFloor> ins = new List<SpawnFloor>();
+    public float LastDistance;
     public int floorCount;
+
+    public static GenerateFloor Instance { get; set; }
+
+    void Awake()
+    {
+        Instance = this;
+    }
     void Start()
     {
-            do
-            {
-            SpawnFloor();
-            } while (floorCount < startFloorQuantity);
+        GenerateStartFloor();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (isDead)
+        //Вычисляем длину от "первого" блока до корабля
+        LastDistance = Vector3.Distance(ShipMovement.Instance.transform.position, ins[0].instantiated.transform.position);
+
+        //если длина от "первого" блока до корабля больше 5. то говорим ему пока
+        if (LastDistance >= floorLenght * 2)
         {
-
+            Destroy(ins[0].instantiated);
+            ins.Remove(ins[0]);
         }
-        else
+
+        //Если в списке блоков меньше, чем начальное количество, то создаем новый блок
+        if (ins.Count < startFloorQuantity)
         {
-            LastDistance = Vector3.Distance(ShipMovement.Instance.transform.position, ins[0].instantiated.transform.position);
-
-            if (ins.Count < startFloorQuantity)
-            {
-                SpawnFloor();
-            }
-
-            if (LastDistance>= floorLenght * 5)
-            {
-                Destroy(ins[0].instantiated);
-                ins.Remove(ins[0]);
-            }
+            SpawnFloor();
         }
+
     }
 
     private void SpawnFloor()
@@ -52,9 +51,32 @@ public class GenerateFloor : MonoBehaviour
         floorCount++;
     }
 
+    private void GenerateStartFloor()
+    {
+        do
+        {
+            SpawnFloor();
+        } while (floorCount < startFloorQuantity);
+    }
+
+    private void DeletAllFloor()
+    {
+        var listLenth = ins.Count;
+
+        for (int i = 0; i <=listLenth; i++)
+        {
+            Destroy(ins[0].instantiated);
+            ins.Remove(ins[0]);
+        }
+    }
+    public void RestartGenerateFloor()
+    {
+        floorCount = 0;
+        DeletAllFloor();
+
+    }
+
 }
-
-
 [System.Serializable]
 public class Variant
 {
