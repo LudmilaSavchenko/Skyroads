@@ -10,8 +10,43 @@
 /[Ll]ogs/
 /[Mm]emoryCaptures/
 
+#My:
+/[Aa]ssets/[Aa]nimations/
+/[Aa]ssets/[Ff]ont/
+/[Mm]odels/
+/[Aa]ssets/[Pp]refabs/
+/[Aa]ssets/[Ss]cenes/
+/[Aa]ssets/[Ss]hadrs/
+/[Aa]ssets/[Tt]extures/
+/[Ll]ibrary/
+
+*.bin
+*.asset
+*.meta
+*.log
+*.cache
+*.json
+*.txt
+*.dll
+*.db
+*.png
+*.md
+*.config
+*.assets
+*.anim
+*.controller
+*.ttf
+*.tga
+*.FBX
+*.mat
+*.shader
+*.prefab
+*.unity
+
+
+
 # Asset meta data should only be ignored when the corresponding asset is also ignored
-!/[Aa]ssets/**/*.meta
+#/[Aa]ssets/**/*.meta
 
 # Uncomment this line if you wish to ignore the asset store tools plugin
 # /[Aa]ssets/AssetStoreTools*
@@ -43,10 +78,12 @@ ExportedObj/
 *.opendb
 *.VC.db
 
+
 # Unity3D generated meta files
 *.pidb.meta
 *.pdb.meta
 *.mdb.meta
+
 
 # Unity3D generated file on crash reports
 sysinfo.txt
