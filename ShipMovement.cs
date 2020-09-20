@@ -2,17 +2,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class ShipMovement : MonoBehaviour
 {
+    [SerializeField] private GameManager gameManager;
     [SerializeField] private float startSpeed = 5.0f; //Начальная скорость
     [SerializeField] private float currentSpeed; //текущая скорость
-    [SerializeField] private float acceleration = 1.0f; //ускорение
+    [SerializeField] private float acceleration = 2.0f; //ускорение
     [SerializeField] private float timeBoosted = 5.0f; //продолжительность буста
     private float currentTimeBoosted; //текущее вре
     [SerializeField] private float speedBooster = 2.0f; //ускорение скорость в бусте
     [SerializeField] private bool isBoosted = false; //включен ли буст в данный момент
+
+    [SerializeField] private bool isPlayScene = false;
     public bool IsBoosted
     {
         get { return isBoosted; }
@@ -26,17 +28,11 @@ public class ShipMovement : MonoBehaviour
     }
     [SerializeField] private float recoveryRateBoost = 0.5f;
 
-    
-    public Vector3 rotation;
     private Vector3 moveDirection;
     private float startYPossition;
     [SerializeField] private float stepToReturnYPossition = 0.05f;
 
-    public float turnRate = 6.0f;
-    public float levelDamping = 1.0f;
-
     public const float roadBorder = 3.0f;
-
     public float Speed
     {
         get { return currentSpeed; }
@@ -47,16 +43,8 @@ public class ShipMovement : MonoBehaviour
         }
     }
 
-    public static ShipMovement Instance { get; set; }
-
-    void Awake()
-    {
-        Instance=this;
-    }
-
     void Start()
     {
-        rotation = Vector3.zero;
         moveDirection = Vector3.forward;
         currentSpeed = startSpeed;
         startYPossition = transform.position.y;
@@ -80,26 +68,23 @@ public class ShipMovement : MonoBehaviour
             if (currentTimeBoosted >= timeBoosted)
                 isReadyToBoost = true;
         }
-    }
+    //}
 
-    void Update()
-    {
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+    //void Update()
+    //{
+        if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && transform.position.x > -roadBorder)
         {
-            rotation = new Vector3(0, 0, 0.15f);
-            if (transform.position.x > -roadBorder)
+            //if (transform.position.x > -roadBorder)
                 moveDirection = new Vector3(-1 / currentSpeed * startSpeed, 0, 1);
         }
-        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+        else if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && (transform.position.x < roadBorder))
         {
-            rotation = new Vector3(0, 0, -0.15f);
-            if (transform.position.x < roadBorder)
+            //if (transform.position.x < roadBorder)
                 moveDirection = new Vector3(1 / currentSpeed * startSpeed, 0, 1);
 
         }
-        else if (Input.GetKeyDown(KeyCode.Space) && isReadyToBoost)
+        else if ((Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) && isReadyToBoost) //Input.GetKeyDown(KeyCode.Space
         {
-            rotation = Vector3.zero;
             moveDirection = new Vector3(0, 0, 1);
 
             isBoosted = true;
@@ -107,35 +92,35 @@ public class ShipMovement : MonoBehaviour
         }
         else
         {
-            rotation = Vector3.zero;
             moveDirection = new Vector3(0, 0, 1);
         }
-        //расчет текущей скорости
-        currentSpeed = startSpeed + acceleration * GameManager.Instance.Seconds * Time.fixedDeltaTime;
+      
+            //расчет текущей скорости
+            if (gameManager != null)
+                currentSpeed = startSpeed + acceleration * (gameManager.Seconds + gameManager.Minutes*60) * Time.fixedDeltaTime;
+            else
+                currentSpeed = startSpeed;
+
         // проверка на буст
         if (isBoosted)
         {
             currentSpeed *= speedBooster;
         }
 
-        if (transform.position.y < startYPossition)
+        if (Math.Round(transform.position.y,1) < startYPossition)
             moveDirection.y = stepToReturnYPossition;
+        if (Math.Round(transform.position.y, 1) > startYPossition)
+            moveDirection.y = -stepToReturnYPossition;
 
-            this.transform.Translate(moveDirection * Time.deltaTime * currentSpeed);
+        this.transform.Translate(moveDirection * Time.deltaTime * currentSpeed);
+    }
 
-        rotation *= turnRate;
-        rotation.y = Mathf.Clamp(rotation.y, -Mathf.PI * 0.9f, Mathf.PI * 0.9f);
-
-        var newOrientation = Quaternion.Euler(rotation);
-        transform.rotation *= newOrientation;
-
-        var levelAngles = transform.eulerAngles;
-        levelAngles.z = 0.0f;
-        var levelOrientation = Quaternion.Euler(levelAngles);
-
-        transform.rotation = Quaternion.Slerp(transform.rotation, levelOrientation, levelDamping * Time.deltaTime);
-        
-
+    public void RestertShipMovement()
+    {
+        currentSpeed = startSpeed;
+        isBoosted = false;
+        isReadyToBoost = true;
+        currentTimeBoosted = timeBoosted;
     }
 
 }

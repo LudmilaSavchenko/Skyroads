@@ -4,19 +4,14 @@ using UnityEngine;
 
 public class GenerateFloor : MonoBehaviour
 {
-    [SerializeField] private GameObject FloorPrefabs;
+    [SerializeField] private GameObject floorPrefabs;
+    [SerializeField] private GameObject spaceship;
     [SerializeField] private int floorLenght; //длина префаба. мб нужно повесить что-то на него, чтотбы узнавать конец прифаба.
     [SerializeField] private int startFloorQuantity;
     public List<SpawnFloor> ins = new List<SpawnFloor>();
-    public float LastDistance;
-    public int floorCount;
+    //public float LastDistance;
+    public long floorCount;
 
-    public static GenerateFloor Instance { get; set; }
-
-    void Awake()
-    {
-        Instance = this;
-    }
     void Start()
     {
         GenerateStartFloor();
@@ -25,10 +20,10 @@ public class GenerateFloor : MonoBehaviour
     void Update()
     {
         //Вычисляем длину от "первого" блока до корабля
-        LastDistance = Vector3.Distance(ShipMovement.Instance.transform.position, ins[0].instantiated.transform.position);
+        //LastDistance = Vector3.Distance(spaceship.transform.position, ins[0].instantiated.transform.position);
 
         //если длина от "первого" блока до корабля больше 5. то говорим ему пока
-        if (LastDistance >= floorLenght * 2)
+        if (spaceship.transform.position.z > ins[0].instantiated.transform.position.z + floorLenght * 2) //if (LastDistance >= floorLenght * 2)
         {
             Destroy(ins[0].instantiated);
             ins.Remove(ins[0]);
@@ -44,8 +39,10 @@ public class GenerateFloor : MonoBehaviour
 
     private void SpawnFloor()
     {
-        GameObject temp = (GameObject)Instantiate(FloorPrefabs, new Vector3(0, 0, floorCount * floorLenght), Quaternion.identity);
-        SpawnFloor floor = new SpawnFloor();
+
+        GameObject temp = (GameObject)Instantiate(floorPrefabs, new Vector3(0, 0, floorCount * floorLenght), Quaternion.identity);
+        temp.transform.parent = transform;
+        SpawnFloor floor = new SpawnFloor();      
         floor.instantiated = temp;
         ins.Add(floor);
         floorCount++;

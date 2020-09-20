@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class AsteroidSpawner : MonoBehaviour
 {
+    [SerializeField] private Transform spaceship;
     //Distance from ship where we go to spawn asteroids
     [SerializeField] private float distanceFromShip = 100f;
     [SerializeField] private Transform startPoint;
@@ -27,8 +28,12 @@ public class AsteroidSpawner : MonoBehaviour
     {
         while (true)
         {
+            Debug.Log("while");
             //Определить место появления следующего астероида
-            float nextSpawnTime = spawnRate + UnityEngine.Random.Range(-variance, variance) - asteroidCounter * Time.fixedDeltaTime;
+            float nextSpawnTime = spawnRate + UnityEngine.Random.Range(-variance, variance)- asteroidCounter * Time.fixedDeltaTime;
+
+            if (nextSpawnTime < variance)
+                nextSpawnTime = variance;
             
             //Ждать в течение заданного интервала времени
             yield return new WaitForSeconds(nextSpawnTime);
@@ -53,11 +58,12 @@ public class AsteroidSpawner : MonoBehaviour
 
         //И добавить смещение объекта, порождающего астероиды
         asteroidPosition.x = UnityEngine.Random.Range(startPoint.position.x, endPoint.position.x);
-        asteroidPosition.y = ShipMovement.Instance.transform.position.y;
-        asteroidPosition.z = ShipMovement.Instance.transform.position.z + distanceFromShip;
+        asteroidPosition.y = spaceship.position.y;
+        asteroidPosition.z = spaceship.position.z + distanceFromShip;
 
         //Создать новый астероид
         GameObject newAsteroid = (GameObject)Instantiate(asteroidPrefab, asteroidPosition, Quaternion.identity);
+        newAsteroid.transform.parent = transform;
     }
 
     private void DestroyAllAsteroids() 
@@ -66,7 +72,7 @@ public class AsteroidSpawner : MonoBehaviour
 
         asteroids = GameObject.FindGameObjectsWithTag("Asteroid");
 
-        for (int i = 0; i < asteroids.Length+1; i++)
+        for (int i = 0; i < asteroids.Length; i++)
         {
             Destroy(asteroids[i]);
         }

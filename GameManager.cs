@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    [SerializeField] private ShipMovement shipMovement;
     //Score
     private int currentScore;
     [SerializeField] private int timePoint = 1;  //очки что даются за 1 секунду времени
@@ -20,16 +21,17 @@ public class GameManager : MonoBehaviour
     private int seconds; //секунду с начала уровня
     private int minutes; //минуты с начала уровня
     private const int secondsInMinute = 60; //секунд в минуте
-
     public string CurrentTime
     {
         get { return minutes + ":" + seconds; }
-        set { }
     }
     public int Seconds
     {
         get { return seconds; }
-        set { }
+    }
+    public int Minutes
+    {
+        get { return minutes; }
     }
 
     //Asteroids - обновляются из скрипта Asteroid
@@ -44,8 +46,7 @@ public class GameManager : MonoBehaviour
     private string boostMessage;
     public string BoostMessage
     {
-        get { return BoostMessage; }
-        set { }
+        get { return boostMessage; }
     }
     //BestScore
     private int bestScore;
@@ -54,26 +55,22 @@ public class GameManager : MonoBehaviour
     public int BestScore
     {
         get { return bestScore; }
-        set { }
     }
     public bool NewBestScore
     {
         get { return newBestScore; }
-        set { }
     }
 
-    public static GameManager Instance { get; set; }
+    //public static GameManager Instance { get; set; }
 
-    void Awake()
-    {
-        Instance = this;
-    }
-
+    //void Awake()
+    //{
+    //    Instance = this;
+    //}
     void Start()
     {
         bestScore = PlayerPrefs.GetInt("Score");
     }
-
     void FixedUpdate()
     {   //Делаем таймер 
         miliSecond += Time.fixedDeltaTime;
@@ -91,17 +88,17 @@ public class GameManager : MonoBehaviour
 
     private void UpdateBoostMessage()
     {
-        if (ShipMovement.Instance.IsReadyToBoost)
+        if (shipMovement.IsReadyToBoost)
         {
-            boostMessage = "Press spacebar to speed up";
+            boostMessage = "Acceleration is available";
         }
-        else if (ShipMovement.Instance.IsBoosted)
+        else if (shipMovement.IsBoosted)
         {
             boostMessage = "Acceleration is active";
         }
         else
         {
-            boostMessage = "Acceleration not available";
+            boostMessage = "Acceleration is not available";
         }
     }
     private void UpdateTime()
@@ -116,7 +113,7 @@ public class GameManager : MonoBehaviour
     }
     private void UpdateScore()
     {
-        if (ShipMovement.Instance.IsBoosted)
+        if (shipMovement.IsBoosted)
             currentScore += timePointBoosted;
         else
             currentScore += timePoint;
@@ -126,6 +123,7 @@ public class GameManager : MonoBehaviour
         if (bestScore < currentScore) 
         {
             PlayerPrefs.SetInt("Score", currentScore);
+            bestScore = currentScore;
             newBestScore = true;
         }
     }

@@ -48,6 +48,7 @@ public class SmoothFollow : MonoBehaviour
     [SerializeField] private float minimalHeight;
     private float maximumHeight;
     [SerializeField] private float speed = 0.05f;
+    [SerializeField] private ShipMovement shipMovement;
 
 
     void Start()
@@ -57,12 +58,12 @@ public class SmoothFollow : MonoBehaviour
     }
     void Update()
     {
-        if (ShipMovement.Instance.IsBoosted && distance > minimalDistance)
+        if (shipMovement.IsBoosted && distance > minimalDistance)
         {
             distance -= speed;
             height -= (speed * 0.5f);
         }
-        else if (distance < maximumDistance)
+        else if (!shipMovement.IsBoosted && distance < maximumDistance)
         {
             distance += speed;
             height += (speed * 0.5f);

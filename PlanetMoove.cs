@@ -4,13 +4,8 @@ using UnityEngine;
 
 public class PlanetMoove : MonoBehaviour
 {
+    [SerializeField] private Transform spaceship;
     private float startZPosition;
-    public static PlanetMoove Instance { get; set; }
-
-    void Awake()
-    {
-        Instance = this;
-    }
     void Start()
     {
         //Запоминаем позицию по z, чтобы было постоянно расстояние между кораблем и планетой
@@ -18,11 +13,7 @@ public class PlanetMoove : MonoBehaviour
     }
     void Update()
     {
-        transform.position = new Vector3(transform.position.x, transform.position.y, ShipMovement.Instance.transform.position.z + startZPosition);
-    }
-
-    public void restartPlanet()
-    {
-        transform.position = new Vector3(transform.position.x, transform.position.y, startZPosition);
+        if (spaceship!=null)
+        transform.position = new Vector3(transform.position.x, transform.position.y, spaceship.transform.position.z + startZPosition);
     }
 }

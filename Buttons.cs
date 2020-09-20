@@ -22,6 +22,16 @@ public class Buttons : MonoBehaviour
         //GenerateFloor.Instance.RestartGenerateFloor();
         //PlanetMoove.Instance.RestartPlanet();
 
+        GameObject canvasPlay;
+
+        canvasPlay = GameObject.FindGameObjectWithTag("CanvasPlay");
+        canvasPlay.transform.localScale = new Vector3(1, 1, 1);
+
+        GameObject canvasLose;
+
+        canvasLose = GameObject.FindGameObjectWithTag("CanvasLose");
+        canvasLose.transform.localScale = new Vector3(0, 0, 0);
+
         Time.timeScale = 1;
     }
 }
